@@ -4,15 +4,51 @@ import math
 import pygame
 from os import listdir
 from os.path import isfile, join
+
 pygame.init()
 
 pygame.display.set_caption("Platformer")
 
 WIDTH, HEIGHT = 600, 600
 FPS = 60
-PLAYER_VEL = 5
+PLAYER_VELO = 5
 
 window = pygame.display.set_mode((WIDTH, HEIGHT))
+
+
+class Character(pygame.sprite.Sprite):
+    COLOR = (255, 255, 255)
+
+    def __init__(self, x, y, width, height):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.x_velo = 0
+        self.y_velo = 0
+        self.mask = None
+        self.direction = "left"
+        self.animation_count = 0
+    
+    def movement(self, displacement_x, displacement_y):
+        self.rect.x += displacement_x
+        self.rect.y += displacement_y
+
+    def move_left(self, velo):
+        self.x_velo = -velo
+        if self.direction != "left":
+            self.direction = "left"
+            self.animation_count = 0
+
+    def move_right(self, velo):
+        self.y_velo = velo
+        if self.direction != "right":
+            self.direction = "right"
+            self.animation_count = 0
+
+    def loop(self, fps):
+        self.move(self.x_velo, self.y_velo)
+
+    def draw(self, window):
+        pygame.draw.rect(window, self.COLOR, self.rect)
+
 
 def create_background(name):
     img = pygame.image.load(join("assets", "background", name))
@@ -26,15 +62,18 @@ def create_background(name):
 
     return tiles, img
 
-def draw_img(window, background, background_img):
+def draw_img(window, background, background_img, char):
     for tile in background:
         window.blit(background_img, tile)
+
+    char.draw(window)
 
     pygame.display.update()
 
 def main(window):
     clock = pygame.time.Clock()
     background, background_img = create_background("Purple.png")
+    char = Character(100, 100, 30, 30)
 
     is_running = True
     while is_running:
@@ -45,7 +84,7 @@ def main(window):
                 is_running = False
                 break
         
-        draw_img(window, background, background_img)
+        draw_img(window, background, background_img, char)
     
     pygame.quit()
     quit()
