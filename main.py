@@ -18,6 +18,7 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 
 class Character(pygame.sprite.Sprite):
     COLOR = (255, 255, 255)
+    GRAVITY = 1
 
     def __init__(self, x, y, width, height):
         self.rect = pygame.Rect(x, y, width, height)
@@ -26,6 +27,7 @@ class Character(pygame.sprite.Sprite):
         self.mask = None
         self.direction = "left"
         self.animation_count = 0
+        self.fall_count = 0
     
     def movement(self, displacement_x, displacement_y):
         self.rect.x += displacement_x
@@ -44,7 +46,10 @@ class Character(pygame.sprite.Sprite):
             self.animation_count = 0
 
     def loop(self, fps):
+        self.y_velo += min(1, (self.fall_count / fps) * self.GRAVITY)
         self.movement(self.x_velo, self.y_velo)
+
+        self.fall_count += 1
 
     def draw(self, window):
         pygame.draw.rect(window, self.COLOR, self.rect)
